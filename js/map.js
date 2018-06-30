@@ -60,7 +60,7 @@ var getAdvert = function (index) {
       'title': getTitle(index),
       'address': location.x + ',' + location.y,
       'price': getRandomValue(1000000, 1000),
-      'type': getRandomValue(AD_TYPE),
+      'type': getRandomElement(AD_TYPE),
       'rooms': getRandomValue(5, 1),
       'guests': getRandomValue(10, 1),
       'checkin': getRandomElement(AD_CHECKIN),
@@ -125,6 +125,7 @@ var getCardType = function (type) {
     case 'flat': return 'Квартира';
     case 'bungalo': return 'Бунгало';
     case 'house': return 'Дом';
+    case 'palace': return 'Дворец';
   }
   return false;
 };
@@ -176,7 +177,7 @@ var setCard = function (advert) {
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price;
+  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь';
   cardElement.querySelector('.popup__type').textContent = getCardType(advert.offer.type);
   cardElement.querySelector('.popup__text--capacity').textContent = getCardCapacity(advert.offer.rooms, advert.offer.guests);
   cardElement.querySelector('.popup__text--time').textContent = getCardTime(advert.offer.checkin, advert.offer.checkout);
