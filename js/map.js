@@ -96,9 +96,10 @@ var pinTemplate = templateElement.querySelector('.map__pin');
 var pinsMapElement = mapElement.querySelector('.map__pins');
 var filterContainerElement = mapElement.querySelector('.map__filters-container');
 
-var setPin = function (advert) {
+var setPin = function (advert, index) {
   var pinElement = pinTemplate.cloneNode(true);
   var pinImageElement = pinElement.querySelector('img');
+  pinElement.dataset.index = index;
   pinImageElement.src = advert.author.avatar;
   pinImageElement.alt = advert.offer.title;
   pinElement.style.left = advert.location.x - HALF_PIN_WIDTH + 'px';
@@ -111,7 +112,7 @@ function fillFragment() {
   var fragment = document.createDocumentFragment();
   var length = advertsArray.length;
   for (var i = 0; i < length; i++) {
-    fragment.appendChild(setPin(advertsArray[i]));
+    fragment.appendChild(setPin(advertsArray[i], i));
   }
 
   return fragment;
