@@ -1,5 +1,8 @@
 'use strict';
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
 var AD_IMAGE_TMP = 'img/avatars/user0';
 var AD_TITLE = ['Большая уютная квартира', 'Маленькая неуютная квартира', 'Огромный прекрасный дворец', 'Маленький ужасный дворец', 'Красивый гостевой домик', 'Некрасивый негостеприимный домик', 'Уютное бунгало далеко от моря', 'Неуютное бунгало по колено в воде'];
 var AD_TYPE = ['palace', 'flat', 'house', 'bungalo'];
@@ -10,6 +13,12 @@ var AD_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o
 var AD_AMOUNT = 8;
 var PIN_HEIGHT = 70;
 var HALF_PIN_WIDTH = 25;
+var MAIN_PIN_HEIGHT = 83;
+var MAIN_PIN_HALF_WIDTH = 32;
+
+
+var mapElement = document.querySelector('.map');
+var pinMainElement = document.querySelector('.map__pin--main');
 
 
 var getRandomValue = function (max, min) {
@@ -84,15 +93,10 @@ var getAdvertsArray = function () {
 var advertsArray = getAdvertsArray();
 
 
-var mapElement = document.querySelector('.map');
-mapElement.classList.remove('map--faded');
-
-
 var templateElement = document.querySelector('template').content;
 var cardTemplate = templateElement.querySelector('.map__card');
 var imageTemplate = cardTemplate.querySelector('.popup__photo');
 var pinTemplate = templateElement.querySelector('.map__pin');
-
 var pinsMapElement = mapElement.querySelector('.map__pins');
 var filterContainerElement = mapElement.querySelector('.map__filters-container');
 
@@ -118,8 +122,6 @@ function fillFragment() {
   return fragment;
 }
 
-pinsMapElement.appendChild(fillFragment());
-
 
 var getCardType = function (type) {
   switch (type) {
@@ -128,7 +130,7 @@ var getCardType = function (type) {
     case 'house': return 'Дом';
     case 'palace': return 'Дворец';
   }
-  return false;
+  return '';
 };
 
 var getCardCapacity = function (rooms, guests) {
@@ -152,7 +154,7 @@ var getCardFeatures = function (parentElement, features) {
   }
 };
 
-var image = function (photo) {
+var setImage = function (photo) {
   var imageElement = imageTemplate.cloneNode(true);
   imageElement.src = photo;
 
@@ -165,11 +167,29 @@ var getCardPhotos = function (container, photos) {
 
   var length = photos.length;
   for (var i = 0; i < length; i++) {
-    fragment.appendChild(image(photos[i]));
+    fragment.appendChild(setImage(photos[i]));
   }
 
   container.appendChild(fragment);
   return container;
+};
+
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
+
+var openPopup = function (index) {
+  return function () {
+    mapElement.insertBefore(setCard(advertsArray[index]), filterContainerElement);
+    document.addEventListener('keydown', onPopupEscPress);
+  };
+};
+
+var closePopup = function () {
+  setup.classList.add('hidden');
+  document.removeEventListener('keydown', onPopupEscPress);
 };
 
 var setCard = function (advert) {
@@ -188,4 +208,29 @@ var setCard = function (advert) {
   return cardElement;
 };
 
-mapElement.insertBefore(setCard(advertsArray[0]), filterContainerElement);
+var onPinsMapClick = function (evt) {
+  var target = evt.target;
+  var index;
+  while (target.tagName !== 'DIV') {
+    if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
+      index = target.dataset.index;
+      mapElement.insertBefore(setCard(advertsArray[index]), filterContainerElement);
+      return;
+    }
+    target = target.parentNode;
+  }
+};
+
+pinMainElement.addEventListener('mouseup', function (evt) {
+  var advertFormElement = document.querySelector('.ad-form');
+  var advertAddressElement = advertFormElement.querySelector('#address');
+  var currentElement = evt.currentTarget;
+  if (mapElement.classList.contains('map--faded')) {
+    mapElement.classList.remove('map--faded');
+    advertFormElement.classList.remove('ad-form--disabled');
+    pinsMapElement.appendChild(fillFragment());
+    advertAddressElement.value = currentElement.offsetLeft + MAIN_PIN_HALF_WIDTH + ', ' + (currentElement.offsetTop + MAIN_PIN_HEIGHT);
+    pinsMapElement.addEventListener('click', onPinsMapClick);
+  }
+});
+
