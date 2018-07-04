@@ -55,10 +55,6 @@
   overflow: hidden;
 }
 
-.hidden {
-  display: none;
-}
-
 body {
   max-width: 1200px;
   margin: 0 auto;
@@ -1215,4 +1211,8 @@ fieldset {
   -webkit-transform: translateX(-50%);
       -ms-transform: translateX(-50%);
           transform: translateX(-50%);
+}
+
+.hidden {
+  display: none;
 }
