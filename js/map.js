@@ -14,11 +14,24 @@ var PIN_HEIGHT = 70;
 var HALF_PIN_WIDTH = 25;
 var MAIN_PIN_HEIGHT = 83;
 var MAIN_PIN_HALF_WIDTH = 32;
-
+var typeMinPrice = {
+  'bungalo': 0,
+  'flat': 1000,
+  'house': 5000,
+  'palace': 10000
+};
 
 var mapElement = document.querySelector('.map');
 var pinMainElement = document.querySelector('.map__pin--main');
-
+/* -- Элементы формы -- */
+var advertFormElement = document.querySelector('.ad-form');
+var titleFieldElement = advertFormElement.querySelector('#title');
+var typeFieldElement = advertFormElement.querySelector('#type');
+var priceFieldElement = advertFormElement.querySelector('#price');
+var checkinFieldElement = advertFormElement.querySelector('#timein');
+var checkoutFieldElement = advertFormElement.querySelector('#timeout');
+var roomsFieldElement = advertFormElement.querySelector('#room_number');
+var capacityFieldElement = advertFormElement.querySelector('#capacity');
 /* -- Вспомогательные функции --*/
 
 var getRandomValue = function (max, min) {
@@ -238,7 +251,6 @@ var onPinsMapClick = function (evt) {
 /* ---- Начальное состояние ----- */
 
 pinMainElement.addEventListener('mouseup', function (evt) {
-  var advertFormElement = document.querySelector('.ad-form');
   var advertAddressElement = advertFormElement.querySelector('#address');
   var currentElement = evt.currentTarget;
   if (mapElement.classList.contains('map--faded')) {
@@ -254,3 +266,61 @@ pinMainElement.addEventListener('mouseup', function (evt) {
   }
 });
 
+/* ----   Валидация формы ---- */
+titleFieldElement.addEventListener('invalid', function () {
+  if (titleFieldElement.validity.tooShort) {
+    titleFieldElement.setCustomValidity('Заголовок должен состоять минимум из 30-ти символов');
+  } else if (titleFieldElement.validity.tooLong) {
+    titleFieldElement.setCustomValidity('Заголовок не должен превышать 100 символов');
+  } else if (titleFieldElement.validity.valueMissing) {
+    titleFieldElement.setCustomValidity('Обязательное поле');
+  } else {
+    titleFieldElement.setCustomValidity('');
+  }
+});
+
+typeFieldElement.addEventListener('change', function (evt) {
+  var value = typeMinPrice[evt.target.value];
+  priceFieldElement.placeholder = value;
+  priceFieldElement.min = value;
+});
+
+var validateTime = function (elem) {
+  return function (evt) {
+    elem.selectedIndex = evt.target.selectedIndex;
+  };
+};
+
+checkinFieldElement.addEventListener('change', validateTime(checkoutFieldElement));
+
+checkoutFieldElement.addEventListener('change', validateTime(checkinFieldElement));
+
+var validateCapacity = function (evt) {
+  var value = parseInt(evt.target.value, 10);
+  var length = capacityFieldElement.options.length;
+  var capacity;
+  for (var i = 0; i < length; i++) {
+    capacity = parseInt(capacityFieldElement.options[i].value, 10);
+    if (value !== 100) {
+      capacityFieldElement.options[i].disabled = (capacity > value) || (capacity === 0);
+    } else {
+      capacityFieldElement.options[i].disabled = (capacity !== 0);
+    }
+  }
+  if (capacityFieldElement.options[capacityFieldElement.selectedIndex].disabled) {
+    capacityFieldElement.setCustomValidity('Не валидное значение');
+  } else {
+    capacityFieldElement.setCustomValidity('');
+  }
+};
+
+roomsFieldElement.addEventListener('change', validateCapacity);
+
+capacityFieldElement.addEventListener('change', function (evt) {
+  evt.target.setCustomValidity('');
+});
+
+window.addEventListener('load', function () {
+  var evt = new Event('change');
+  roomsFieldElement.dispatchEvent(evt);
+});
