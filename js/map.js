@@ -14,6 +14,9 @@ var PIN_HEIGHT = 70;
 var HALF_PIN_WIDTH = 25;
 var MAIN_PIN_HEIGHT = 83;
 var MAIN_PIN_HALF_WIDTH = 32;
+var TOP_BOUNDARY = 130;
+var BOTTOM_BOUNDARY = 630;
+
 var typeMinPrice = {
   'bungalo': 0,
   'flat': 1000,
@@ -32,6 +35,7 @@ var checkinFieldElement = advertFormElement.querySelector('#timein');
 var checkoutFieldElement = advertFormElement.querySelector('#timeout');
 var roomsFieldElement = advertFormElement.querySelector('#room_number');
 var capacityFieldElement = advertFormElement.querySelector('#capacity');
+var advertAddressElement = advertFormElement.querySelector('#address');
 /* -- Вспомогательные функции --*/
 
 var getRandomValue = function (max, min) {
@@ -251,7 +255,6 @@ var onPinsMapClick = function (evt) {
 /* ---- Начальное состояние ----- */
 
 pinMainElement.addEventListener('mouseup', function (evt) {
-  var advertAddressElement = advertFormElement.querySelector('#address');
   var currentElement = evt.currentTarget;
   if (mapElement.classList.contains('map--faded')) {
     mapElement.classList.remove('map--faded');
@@ -299,12 +302,14 @@ var validateCapacity = function (evt) {
   var value = parseInt(evt.target.value, 10);
   var length = capacityFieldElement.options.length;
   var capacity;
+  var option;
   for (var i = 0; i < length; i++) {
-    capacity = parseInt(capacityFieldElement.options[i].value, 10);
+    option = capacityFieldElement.options[i];
+    capacity = parseInt(option.value, 10);
     if (value !== 100) {
-      capacityFieldElement.options[i].disabled = (capacity > value) || (capacity === 0);
+      option.disabled = (capacity > value) || (capacity === 0);
     } else {
-      capacityFieldElement.options[i].disabled = (capacity !== 0);
+      option.disabled = (capacity !== 0);
     }
   }
   if (capacityFieldElement.options[capacityFieldElement.selectedIndex].disabled) {
@@ -323,4 +328,95 @@ capacityFieldElement.addEventListener('change', function (evt) {
 window.addEventListener('load', function () {
   var evt = new Event('change');
   roomsFieldElement.dispatchEvent(evt);
+});
+
+
+/* ---- Перетаскивание метки ---- */
+
+
+var getPinXCoordinate = function () {
+  return pinMainElement.offsetLeft + MAIN_PIN_HALF_WIDTH;
+};
+
+var checkPinXCoordinate = function (max, shift) {
+  var x = getPinXCoordinate() - shift;
+  return (x >= 0) && (x <= max);
+};
+
+var checkCursorXCoordinate = function (x, min, max) {
+  return (x >= min) && (x <= max);
+};
+
+var setPinXCoordinate = function (x, shift, min, max) {
+  if (checkPinXCoordinate(max, shift) && checkCursorXCoordinate(x, min, min + max)) {
+    pinMainElement.style.left = (pinMainElement.offsetLeft - shift) + 'px';
+  } else if (x < min) {
+    pinMainElement.style.left = -MAIN_PIN_HALF_WIDTH + 'px';
+  } else if (x > min + max) {
+    pinMainElement.style.left = max - MAIN_PIN_HALF_WIDTH + 'px';
+  }
+};
+
+
+var getPinYCoordinate = function () {
+  return pinMainElement.offsetTop + MAIN_PIN_HEIGHT;
+};
+
+var checkPinYCoordinate = function (min, max, shift) {
+  var y = getPinYCoordinate() - shift;
+  return (y >= min) && (y <= max);
+};
+
+var checkCursorYCoordinate = function (y, min, max) {
+  return (y >= min) && (y <= max);
+};
+
+var setPinYCoordinate = function (y, shift) {
+  if (checkPinYCoordinate(TOP_BOUNDARY, BOTTOM_BOUNDARY, shift) && checkCursorYCoordinate(y, TOP_BOUNDARY - MAIN_PIN_HEIGHT, BOTTOM_BOUNDARY)) {
+    pinMainElement.style.top = (pinMainElement.offsetTop - shift) + 'px';
+  } else if (y < TOP_BOUNDARY - MAIN_PIN_HEIGHT) {
+    pinMainElement.style.top = TOP_BOUNDARY - MAIN_PIN_HEIGHT + 'px';
+  } else if (y > BOTTOM_BOUNDARY) {
+    pinMainElement.style.top = BOTTOM_BOUNDARY - MAIN_PIN_HEIGHT + 'px';
+  }
+};
+pinMainElement.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var leftBoundary = mapElement.offsetLeft;
+  var mapWidth = mapElement.clientWidth;
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+    
+    setPinYCoordinate(startCoords.y, shift.y);
+    setPinXCoordinate(startCoords.x, shift.x, leftBoundary, mapWidth);
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    advertAddressElement.value = getPinXCoordinate(upEvt.currentTarget) + ', ' + getPinYCoordinate(upEvt.currentTarget);
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 });
