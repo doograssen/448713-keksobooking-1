@@ -299,12 +299,14 @@ var validateCapacity = function (evt) {
   var value = parseInt(evt.target.value, 10);
   var length = capacityFieldElement.options.length;
   var capacity;
+  var option;
   for (var i = 0; i < length; i++) {
-    capacity = parseInt(capacityFieldElement.options[i].value, 10);
+    option = capacityFieldElement.options[i];
+    capacity = parseInt(option.value, 10);
     if (value !== 100) {
-      capacityFieldElement.options[i].disabled = (capacity > value) || (capacity === 0);
+      option.disabled = (capacity > value) || (capacity === 0);
     } else {
-      capacityFieldElement.options[i].disabled = (capacity !== 0);
+      option.disabled = (capacity !== 0);
     }
   }
   if (capacityFieldElement.options[capacityFieldElement.selectedIndex].disabled) {
@@ -323,4 +325,60 @@ capacityFieldElement.addEventListener('change', function (evt) {
 window.addEventListener('load', function () {
   var evt = new Event('change');
   roomsFieldElement.dispatchEvent(evt);
+});
+
+
+/* ---- Перетаскивание метки ---- */
+
+pinMainElement.addEventListener('mousedown', function (evt) {
+  evt.preventDefault();
+
+  var startZIndex = evt.currentTarget.style.zIndex;
+
+  var startCoords = {
+    x: evt.clientX,
+    y: evt.clientY
+  };
+
+  evt.currentTarget.style.zIndex = 100;
+
+  var dragged = false;
+
+  var onMouseMove = function (moveEvt) {
+    moveEvt.preventDefault();
+    dragged = true;
+
+    var shift = {
+      x: startCoords.x - moveEvt.clientX,
+      y: startCoords.y - moveEvt.clientY
+    };
+
+    startCoords = {
+      x: moveEvt.clientX,
+      y: moveEvt.clientY
+    };
+
+    pinMainElement.style.top = (pinMainElement.offsetTop - shift.y) + 'px';
+    pinMainElement.style.left = (pinMainElement.offsetLeft - shift.x) + 'px';
+
+  };
+
+  var onMouseUp = function (upEvt) {
+    upEvt.preventDefault();
+
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    /*
+        if (dragged) {
+          var onClickPreventDefault = function (evt) {
+            evt.preventDefault();
+            dialogHandler.removeEventListener('click', onClickPreventDefault);
+          };
+          dialogHandler.addEventListener('click', onClickPreventDefault);
+        }*/
+
+  };
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
 });
