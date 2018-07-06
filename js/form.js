@@ -73,6 +73,16 @@
     evt.target.setCustomValidity('');
   });
 
+
+  var resetForm = function () {
+    advertFormElement.reset();
+  };
+
+  advertFormElement.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    window.backend.save(new FormData(advertFormElement), resetForm, window.backend.serverError);
+  });
+
   window.addEventListener('load', function () {
     var evt = new Event('change');
     roomsFieldElement.dispatchEvent(evt);

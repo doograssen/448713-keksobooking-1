@@ -5,41 +5,53 @@ var MAIN_PIN_HALF_WIDTH = 32;
 var TOP_BOUNDARY = 130;
 var BOTTOM_BOUNDARY = 630;
 
-
 var mapElement = document.querySelector('.map');
 var pinMainElement = document.querySelector('.map__pin--main');
 var advertFormElement = document.querySelector('.ad-form');
 var advertAddressElement = advertFormElement.querySelector('#address');
-
 var pinsMapElement = mapElement.querySelector('.map__pins');
 
-var onPinsMapClick = function (evt) {
-  var target = evt.target;
-  var index;
-
-  while (target.tagName !== 'DIV') {
-    if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
-      index = target.dataset.index;
-      window.card.setCard(window.data.advertsArray[index]);
-      return;
-    }
-    target = target.parentNode;
+function fillFragment(dataArray) {
+  var fragment = document.createDocumentFragment();
+  var length = dataArray.length;
+  for (var i = 0; i < length; i++) {
+    fragment.appendChild(window.pin.setPin(dataArray[i], i));
   }
+  return fragment;
+}
+
+var onPinsMapClick = function (dataArray) {
+  return function (evt) {
+    var target = evt.target;
+    var index;
+
+    while (target.tagName !== 'DIV') {
+      if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
+        index = target.dataset.index;
+        window.card.setCard(dataArray[index]);
+        return;
+      }
+      target = target.parentNode;
+    }
+  };
 };
 
-/* ---- Начальное состояние ----- */
+var successXHRExecution = function (response) {
+  pinMainElement.addEventListener('mouseup', function (evt) {
+    var currentElement = evt.currentTarget;
+    if (mapElement.classList.contains('map--faded')) {
+      mapElement.classList.remove('map--faded');
+      advertFormElement.classList.remove('ad-form--disabled');
+      var fragment = fillFragment(response);
+      pinsMapElement.appendChild(fragment);
+      advertAddressElement.value = currentElement.offsetLeft + MAIN_PIN_HALF_WIDTH + ', ' + (currentElement.offsetTop + MAIN_PIN_HEIGHT);
+      window.card.cloneCard();
+      pinsMapElement.addEventListener('click', onPinsMapClick(response));
+    }
+  });
+};
 
-pinMainElement.addEventListener('mouseup', function (evt) {
-  var currentElement = evt.currentTarget;
-  if (mapElement.classList.contains('map--faded')) {
-    mapElement.classList.remove('map--faded');
-    advertFormElement.classList.remove('ad-form--disabled');
-    window.pin.drawPinElements(pinsMapElement);
-    advertAddressElement.value = currentElement.offsetLeft + MAIN_PIN_HALF_WIDTH + ', ' + (currentElement.offsetTop + MAIN_PIN_HEIGHT);
-    window.card.cloneCard();
-    pinsMapElement.addEventListener('click', onPinsMapClick);
-  }
-});
+window.backend.load(successXHRExecution, window.backend.serverError);
 
 /* ---- Перетаскивание метки ---- */
 
@@ -90,6 +102,7 @@ var setPinYCoordinate = function (y, shift) {
     pinMainElement.style.top = BOTTOM_BOUNDARY - MAIN_PIN_HEIGHT + 'px';
   }
 };
+
 pinMainElement.addEventListener('mousedown', function (evt) {
   evt.preventDefault();
 
@@ -129,4 +142,6 @@ pinMainElement.addEventListener('mousedown', function (evt) {
 
   document.addEventListener('mousemove', onMouseMove);
   document.addEventListener('mouseup', onMouseUp);
+
+
 });
