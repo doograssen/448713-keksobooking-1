@@ -43,7 +43,7 @@
       var errorMessageBlock = document.createElement('div');
       var errorText = document.createElement('p');
       errorMessageBlock.appendChild(errorText);
-      errorMessageBlock.classList.add('error-message-block');
+      errorMessageBlock.classList.add('error__message');
       errorText.textContent = errorMessage;
       document.body.insertAdjacentElement('afterbegin', errorMessageBlock);
     }

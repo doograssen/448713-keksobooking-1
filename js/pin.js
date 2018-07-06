@@ -15,9 +15,9 @@
       pinImageElement.src = advert.author.avatar;
       pinImageElement.alt = advert.offer.title;
       pinElement.style.left = advert.location.x - HALF_PIN_WIDTH + 'px';
-      pinElement.style.top = advert.location.y + PIN_HEIGHT + 'px';
+      pinElement.style.top = advert.location.y - PIN_HEIGHT + 'px';
 
       return pinElement;
     }
-  }
+  };
 })();

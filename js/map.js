@@ -29,7 +29,6 @@ var onPinsMapClick = function (dataArray) {
       if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
         index = target.dataset.index;
         window.card.setCard(dataArray[index]);
-        console.log(dataArray[index]);
         return;
       }
       target = target.parentNode;
