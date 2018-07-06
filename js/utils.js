@@ -3,7 +3,6 @@
 (function () {
 
   window.utils = {
-
     getRandomValue: function (max, min) {
       min = typeof min !== 'undefined' ? min : 0;
       return Math.round(Math.random() * (max - min)) + min;
