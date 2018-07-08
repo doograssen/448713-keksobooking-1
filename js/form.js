@@ -54,11 +54,7 @@
     for (var i = 0; i < length; i++) {
       option = capacityFieldElement.options[i];
       capacity = parseInt(option.value, 10);
-      if (value !== 100) {
-        option.disabled = (capacity > value) || (capacity === 0);
-      } else {
-        option.disabled = (capacity !== 0);
-      }
+      option.disabled = (value !== 100) ? (capacity > value || capacity === 0) : (capacity !== 0);
     }
     if (capacityFieldElement.options[capacityFieldElement.selectedIndex].disabled) {
       capacityFieldElement.setCustomValidity('Не валидное значение');

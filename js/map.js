@@ -41,17 +41,17 @@ var cleanMap = function () {
   while (pinsMapElement.querySelector('.map__pin')) {
     pinsMapElement.removeChild(pinsMapElement.querySelector('.map__pin'));
   }
+  mapElement.querySelector('.map__card').classList.add('hidden');
 };
 
 var applyFilters = function (dataArray) {
   return function () {
     var arr;
     cleanMap();
-    mapElement.querySelector('.map__card').classList.add('hidden');
     arr = window.filters.setFilters(dataArray);
     var fragment = fillFragment(arr);
     pinsMapElement.appendChild(fragment);
-    pinsMapElement.addEventListener('click', onPinsMapClick(dataArray));
+    pinsMapElement.addEventListener('click', onPinsMapClick(arr));
   };
 };
 
