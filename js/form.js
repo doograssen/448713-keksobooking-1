@@ -18,7 +18,20 @@
     'palace': 10000
   };
 
-  titleFieldElement.addEventListener('invalid', function () {
+  var addInvalidStyle = function (elem) {
+    if (!elem.classList.contains('invalid')) {
+      elem.classList.add('invalid');
+    }
+  };
+
+  var removeInvalidStyle = function (elem) {
+    if (elem.classList.contains('invalid')) {
+      elem.classList.remove('invalid');
+    }
+  };
+
+  titleFieldElement.addEventListener('invalid', function (evt) {
+    addInvalidStyle(evt.target);
     if (titleFieldElement.validity.tooShort) {
       titleFieldElement.setCustomValidity('Заголовок должен состоять минимум из 30-ти символов');
     } else if (titleFieldElement.validity.tooLong) {
@@ -27,6 +40,7 @@
       titleFieldElement.setCustomValidity('Обязательное поле');
     } else {
       titleFieldElement.setCustomValidity('');
+      removeInvalidStyle(evt.target);
     }
   });
 
@@ -34,6 +48,10 @@
     var value = typeMinPrice[evt.target.value];
     priceFieldElement.placeholder = value;
     priceFieldElement.min = value;
+  });
+
+  priceFieldElement.addEventListener('invalid', function (evt) {
+    addInvalidStyle(evt.target);
   });
 
   var validateTime = function (elem) {
@@ -58,6 +76,7 @@
     }
     if (capacityFieldElement.options[capacityFieldElement.selectedIndex].disabled) {
       capacityFieldElement.setCustomValidity('Не валидное значение');
+      addInvalidStyle(capacityFieldElement);
     } else {
       capacityFieldElement.setCustomValidity('');
     }

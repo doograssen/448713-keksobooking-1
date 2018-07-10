@@ -1231,3 +1231,11 @@ fieldset {
   border-radius: 4px;
   z-index: 100;
 }
+
+.ad-form__element input.invalid,
+.ad-form__element select.invalid {
+  outline: none;
+  -webkit-box-shadow: inset 0 0 2px 4px #ff4747;
+  box-shadow: inset 0 0 2px 4px #ff4747;
+}
+
