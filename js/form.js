@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+
+  var ENTER_KEYCODE = 13;
   var advertFormElement = document.querySelector('.ad-form');
   var titleFieldElement = advertFormElement.querySelector('#title');
   var typeFieldElement = advertFormElement.querySelector('#type');
@@ -9,6 +11,9 @@
   var checkoutFieldElement = advertFormElement.querySelector('#timeout');
   var roomsFieldElement = advertFormElement.querySelector('#room_number');
   var capacityFieldElement = advertFormElement.querySelector('#capacity');
+  var fieldsetElements = advertFormElement.querySelectorAll('.ad-form__element');
+  var messageElement = document.querySelector('.success');
+  var featuresElement = advertFormElement.querySelector('.features');
   // var advertAddressElement = advertFormElement.querySelector('#address');
 
   var typeMinPrice = {
@@ -30,6 +35,22 @@
     }
   };
 
+  var blockFormFields = function (flag) {
+    var length = fieldsetElements.length;
+    for (var i = 0; i < length; i++) {
+      fieldsetElements[i].disabled = flag;
+    }
+  };
+
+  featuresElement.addEventListener('keypress', function (evt) {
+    var currentElement = evt.target;
+    console.log(currentElement.tagName);
+    if ((currentElement.tagName === 'INPUT') && (evt.keyCode === ENTER_KEYCODE)) {
+      currentElement.checked = !currentElement.checked;
+    }
+  });
+
+  // ---- Валидация поля ввода заголовка ----
   titleFieldElement.addEventListener('invalid', function (evt) {
     addInvalidStyle(evt.target);
     if (titleFieldElement.validity.tooShort) {
@@ -44,16 +65,28 @@
     }
   });
 
+  titleFieldElement.addEventListener('input', function (evt) {
+    var target = evt.target;
+    removeInvalidStyle(target);
+  });
+
+  // ---- Валидация поля ввода типа жилья ----
   typeFieldElement.addEventListener('change', function (evt) {
     var value = typeMinPrice[evt.target.value];
     priceFieldElement.placeholder = value;
     priceFieldElement.min = value;
+    removeInvalidStyle(priceFieldElement);
   });
 
   priceFieldElement.addEventListener('invalid', function (evt) {
     addInvalidStyle(evt.target);
   });
 
+  priceFieldElement.addEventListener('input', function (evt) {
+    removeInvalidStyle(evt.target);
+  });
+
+  // ---- Валидация поля въезда/выезда ----
   var validateTime = function (elem) {
     return function (evt) {
       elem.selectedIndex = evt.target.selectedIndex;
@@ -64,6 +97,7 @@
 
   checkoutFieldElement.addEventListener('change', validateTime(checkinFieldElement));
 
+  // ----- валидация количества гостей -----
   var validateCapacity = function (evt) {
     var value = parseInt(evt.target.value, 10);
     var length = capacityFieldElement.options.length;
@@ -79,18 +113,22 @@
       addInvalidStyle(capacityFieldElement);
     } else {
       capacityFieldElement.setCustomValidity('');
+      removeInvalidStyle(capacityFieldElement);
     }
   };
 
   roomsFieldElement.addEventListener('change', validateCapacity);
 
   capacityFieldElement.addEventListener('change', function (evt) {
-    evt.target.setCustomValidity('');
+    var target = evt.target;
+    target.setCustomValidity('');
+    removeInvalidStyle(target);
   });
 
-
+  // ----- сброс формы -----
   var resetForm = function () {
     advertFormElement.reset();
+    messageElement.classList.remove('hidden');
   };
 
   advertFormElement.addEventListener('submit', function (evt) {
@@ -98,9 +136,19 @@
     window.backend.save(new FormData(advertFormElement), resetForm, window.backend.serverError);
   });
 
+  advertFormElement.addEventListener('keypress', function (evt) {
+    if ((evt.target.tagName !== 'BUTTON') && (evt.keyCode === ENTER_KEYCODE)) {
+      evt.preventDefault();
+    }
+  });
+
+
   window.addEventListener('load', function () {
     var evt = new Event('change');
     roomsFieldElement.dispatchEvent(evt);
   });
 
+  window.form = {
+    setBlock: blockFormFields
+  };
 })();

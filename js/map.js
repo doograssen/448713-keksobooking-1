@@ -30,6 +30,11 @@ var onPinsMapClick = function (dataArray) {
       if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
         index = target.dataset.index;
         window.card.setCard(dataArray[index]);
+        var activePinElement = pinsMapElement.querySelector('.map__pin--active');
+        if (activePinElement !== null) {
+          activePinElement.classList.remove('map__pin--active');
+        }
+        target.classList.add('map__pin--active');
         return;
       }
       target = target.parentNode;
@@ -60,6 +65,7 @@ var successXHRExecution = function (response) {
     var currentElement = evt.currentTarget;
     if (mapElement.classList.contains('map--faded')) {
       mapElement.classList.remove('map--faded');
+      window.form.setBlock(false);
       advertFormElement.classList.remove('ad-form--disabled');
       var fragment = fillFragment(response);
       pinsMapElement.appendChild(fragment);
