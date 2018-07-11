@@ -46,7 +46,7 @@
 
   var checkFeaturesFilter = function (item) {
     var featuresElements = filtersContainerElement.querySelectorAll('.map__checkbox:checked');
-    var check = (featuresElements.length > 0);
+    var check = true;
     for (var i = 0; i < featuresElements.length; i++) {
       if (item.offer.features.indexOf(featuresElements[i].value) === -1) {
         check = false;
@@ -58,6 +58,12 @@
 
   window.filters = {
     setFilters: function (dataArray) {
+      console.log(dataArray
+        .filter(simpleSelectFilter(typeSelectElement, 'type'))
+        .filter(checkPriceFilter)
+        .filter(simpleSelectFilter(roomsSelectElement, 'rooms'))
+        .filter(simpleSelectFilter(guestsSelectElement, 'guests'))
+        .filter(checkFeaturesFilter));
       return dataArray
         .filter(simpleSelectFilter(typeSelectElement, 'type'))
         .filter(checkPriceFilter)

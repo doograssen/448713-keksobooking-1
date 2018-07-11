@@ -2,6 +2,8 @@
 
 var MAIN_PIN_HEIGHT = 83;
 var MAIN_PIN_HALF_WIDTH = 32;
+var MAIN_PIN_DEFAULT_X = 570;
+var MAIN_PIN_DEFAULT_Y = 375;
 var TOP_BOUNDARY = 130;
 var BOTTOM_BOUNDARY = 630;
 
@@ -25,7 +27,6 @@ var onPinsMapClick = function (dataArray) {
   return function (evt) {
     var target = evt.target;
     var index;
-
     while (target.tagName !== 'DIV') {
       if ((target.tagName === 'BUTTON') && (!target.classList.contains('map__pin--main'))) {
         index = target.dataset.index;
@@ -56,7 +57,6 @@ var applyFilters = function (dataArray) {
     arr = window.filters.setFilters(dataArray);
     var fragment = fillFragment(arr);
     pinsMapElement.appendChild(fragment);
-    pinsMapElement.addEventListener('click', onPinsMapClick(arr));
   };
 };
 

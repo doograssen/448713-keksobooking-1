@@ -44,7 +44,6 @@
 
   featuresElement.addEventListener('keypress', function (evt) {
     var currentElement = evt.target;
-    console.log(currentElement.tagName);
     if ((currentElement.tagName === 'INPUT') && (evt.keyCode === ENTER_KEYCODE)) {
       currentElement.checked = !currentElement.checked;
     }
@@ -128,12 +127,17 @@
   // ----- сброс формы -----
   var resetForm = function () {
     advertFormElement.reset();
-    messageElement.classList.remove('hidden');
+    blockFormFields(true);
+    advertFormElement.classList.add('ad-form--disabled');
+  };
+
+  var setSuccessState = function () {
+    resetForm();
   };
 
   advertFormElement.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.save(new FormData(advertFormElement), resetForm, window.backend.serverError);
+    window.backend.save(new FormData(advertFormElement), setSuccessState, window.backend.serverError);
   });
 
   advertFormElement.addEventListener('keypress', function (evt) {
