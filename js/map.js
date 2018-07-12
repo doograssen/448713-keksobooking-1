@@ -70,9 +70,11 @@
       var arr;
       cleanMap();
       arr = window.filters.setFilters(dataArray);
-      window.debounce(function () {
-        fillMap(arr);
-      });
+      if (arr.length > 0) {
+        window.debounce(function () {
+          fillMap(arr);
+        });
+      }
     };
   };
 
