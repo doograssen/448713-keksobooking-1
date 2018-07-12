@@ -99,7 +99,6 @@
 
   var successXHRExecution = function (response) {
     pinMainElement.addEventListener('mouseup', function () {
-      /* var currentElement = evt.currentTarget;*/
       if (mapElement.classList.contains('map--faded')) {
         mapElement.classList.remove('map--faded');
         window.utils.setBlock(fieldsetElements, false);
