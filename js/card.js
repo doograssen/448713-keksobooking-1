@@ -2,7 +2,6 @@
 
 (function () {
 
-  var ESC_KEYCODE = 27;
   var AD_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 
   var mapElement = document.querySelector('.map');
@@ -71,21 +70,6 @@
     return container;
   };
 
-  /* ----- Функции взаимодействия ---- */
-
-  var onPopupEscPress = function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
-      closePopup();
-    }
-  };
-
-  var closePopup = function () {
-    var cardElement = mapElement.querySelector('.map__card');
-    cardElement.classList.add('hidden');
-    document.removeEventListener('keydown', onPopupEscPress);
-  };
-
-
   window.card = {
     setCard: function (advert) {
       var cardElement = mapElement.querySelector('.map__card');
@@ -101,11 +85,10 @@
       getCardFeatures(cardElement, advert.offer.features);
       cardElement.querySelector('.popup__description').textContent = advert.offer.description;
       getCardPhotos(imageContainerElement, advert.offer.photos);
-      if (cardElement.classList.contains('hidden')) {
-        cardElement.classList.remove('hidden');
-        document.addEventListener('keydown', onPopupEscPress);
-        closeButtonElement.addEventListener('click', closePopup);
-      }
+      window.utils.showPopup(cardElement);
+      closeButtonElement.addEventListener('click', function () {
+        window.utils.closePopup(cardElement);
+      });
     },
     cloneCard: function () {
       var cardElement = cardTemplate.cloneNode(true);

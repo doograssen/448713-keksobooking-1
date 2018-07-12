@@ -3,6 +3,8 @@
 (function () {
   var MAIN_PIN_HEIGHT = 83;
   var MAIN_PIN_HALF_WIDTH = 32;
+  var MAIN_PIN_DEFAULT_X = 570;
+  var MAIN_PIN_DEFAULT_Y = 375;
   var TOP_BOUNDARY = 130;
   var BOTTOM_BOUNDARY = 630;
 
@@ -13,10 +15,11 @@
   var pinsMapElement = mapElement.querySelector('.map__pins');
   var filtersContainerElement = document.querySelector('.map__filters');
   var fieldsetElements = advertFormElement.querySelectorAll('.ad-form__element');
+  var pinMapListener;
 
   function fillFragment(dataArray) {
     var fragment = document.createDocumentFragment();
-    var length = dataArray.length;
+    var length = (dataArray.length > 5) ? 5 : dataArray.length;
     for (var i = 0; i < length; i++) {
       fragment.appendChild(window.pin.setPin(dataArray[i], i));
     }
@@ -43,10 +46,22 @@
     };
   };
 
-  var cleanMap = function () {
-    while (pinsMapElement.querySelector('.map__pin')) {
-      pinsMapElement.removeChild(pinsMapElement.querySelector('.map__pin'));
+  var fillMap = function (arr) {
+    var fragment = fillFragment(arr);
+    pinsMapElement.appendChild(fragment);
+    if (mapElement.querySelector('.map__card') === null) {
+      window.card.cloneCard();
     }
+    pinMapListener = onPinsMapClick(arr);
+    pinsMapElement.addEventListener('click', pinMapListener);
+  };
+
+  var cleanMap = function () {
+    while (pinsMapElement.querySelector('.map__pin:not(.map__pin--main)')) {
+      pinsMapElement.removeChild(pinsMapElement.querySelector('.map__pin:not(.map__pin--main)'));
+    }
+    pinsMapElement.removeEventListener('keydown', pinMapListener);
+    pinMapListener = null;
     mapElement.querySelector('.map__card').classList.add('hidden');
   };
 
@@ -55,8 +70,9 @@
       var arr;
       cleanMap();
       arr = window.filters.setFilters(dataArray);
-      var fragment = fillFragment(arr);
-      pinsMapElement.appendChild(fragment);
+      window.debounce(function () {
+        fillMap(arr);
+      });
     };
   };
 
@@ -73,23 +89,23 @@
     return getPinXCoordinate() + ', ' + getPinYCoordinate();
   };
 
-  var setDefaultPosition = function (element, x, y) {
-    element.style.left = x;
-    element.style.top = y;
+  var setDefaultState = function () {
+    cleanMap();
+    mapElement.classList.add('map--faded');
+    pinMainElement.style.left = MAIN_PIN_DEFAULT_X + 'px';
+    pinMainElement.style.top = MAIN_PIN_DEFAULT_Y + 'px';
   };
 
+
   var successXHRExecution = function (response) {
-    pinMainElement.addEventListener('mouseup', function (evt) {
-      var currentElement = evt.currentTarget;
+    pinMainElement.addEventListener('mouseup', function () {
+      /* var currentElement = evt.currentTarget;*/
       if (mapElement.classList.contains('map--faded')) {
         mapElement.classList.remove('map--faded');
         window.utils.setBlock(fieldsetElements, false);
         advertFormElement.classList.remove('ad-form--disabled');
-        var fragment = fillFragment(response);
-        pinsMapElement.appendChild(fragment);
-        advertAddressElement.value = getAddress(currentElement);
-        window.card.cloneCard();
-        pinsMapElement.addEventListener('click', onPinsMapClick(response));
+        advertAddressElement.value = getAddress();
+        fillMap(response);
         filtersContainerElement.addEventListener('change', applyFilters(response));
       }
     });
@@ -98,7 +114,6 @@
   window.backend.load(successXHRExecution, window.backend.serverError);
 
   /* ---- Перетаскивание метки ---- */
-
 
   var checkPinXCoordinate = function (max, shift) {
     var x = getPinXCoordinate() - shift;
@@ -169,7 +184,7 @@
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
-      advertAddressElement.value = getPinXCoordinate(upEvt.currentTarget) + ', ' + getPinYCoordinate(upEvt.currentTarget);
+      advertAddressElement.value = getAddress();
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
@@ -178,10 +193,14 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
 
+  });
 
+  window.addEventListener('load', function () {
+    advertAddressElement.value = getAddress();
   });
 
   window.map = {
-    fillAddress: getAddress
+    fillAddress: getAddress,
+    resetMap: setDefaultState
   };
 })();

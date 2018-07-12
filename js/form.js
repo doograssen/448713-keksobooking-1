@@ -3,6 +3,12 @@
 (function () {
 
   var ENTER_KEYCODE = 13;
+  var TypeMinPrice = {
+    'BUNGALO': 0,
+    'FLAT': 1000,
+    'HOUSE': 5000,
+    'PALACE': 10000
+  };
   var advertFormElement = document.querySelector('.ad-form');
   var addressFieldElement = advertFormElement.querySelector('#address');
   var titleFieldElement = advertFormElement.querySelector('#title');
@@ -15,14 +21,7 @@
   var fieldsetElements = advertFormElement.querySelectorAll('.ad-form__element');
   var messageElement = document.querySelector('.success');
   var featuresElement = advertFormElement.querySelector('.features');
-  // var advertAddressElement = advertFormElement.querySelector('#address');
-
-  var typeMinPrice = {
-    'bungalo': 0,
-    'flat': 1000,
-    'house': 5000,
-    'palace': 10000
-  };
+  var resetFormElement = advertFormElement.querySelector('.ad-form__reset');
 
   var addInvalidStyle = function (elem) {
     if (!elem.classList.contains('invalid')) {
@@ -65,7 +64,7 @@
 
   // ---- Валидация поля ввода типа жилья ----
   typeFieldElement.addEventListener('change', function (evt) {
-    var value = typeMinPrice[evt.target.value];
+    var value = TypeMinPrice[evt.target.value.toUpperCase()];
     priceFieldElement.placeholder = value;
     priceFieldElement.min = value;
     removeInvalidStyle(priceFieldElement);
@@ -123,11 +122,18 @@
     advertFormElement.reset();
     window.utils.setBlock(fieldsetElements, true);
     advertFormElement.classList.add('ad-form--disabled');
-
+    var formInputElements = advertFormElement.querySelectorAll('.invalid');
+    var length = formInputElements.length;
+    for (var i = 0; i < length; i++) {
+      removeInvalidStyle(formInputElements[i]);
+    }
   };
 
   var setSuccessState = function () {
     resetForm();
+    window.map.resetMap();
+    addressFieldElement.value = window.map.fillAddress();
+    window.utils.showPopup(messageElement);
   };
 
   advertFormElement.addEventListener('submit', function (evt) {
@@ -141,6 +147,11 @@
     }
   });
 
+  resetFormElement.addEventListener('click', function () {
+    resetForm();
+    window.map.resetMap();
+    addressFieldElement.value = window.map.fillAddress();
+  });
 
   window.addEventListener('load', function () {
     var evt = new Event('change');
