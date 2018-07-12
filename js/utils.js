@@ -3,14 +3,11 @@
 (function () {
 
   window.utils = {
-    getRandomValue: function (max, min) {
-      min = typeof min !== 'undefined' ? min : 0;
-      return Math.round(Math.random() * (max - min)) + min;
-    },
-    shuffleArray: function (arr) {
-      return arr.sort(function () {
-        return Math.random() - 0.5;
-      });
+    setBlock: function (elements, flag) {
+      var length = elements.length;
+      for (var i = 0; i < length; i++) {
+        elements[i].disabled = flag;
+      }
     }
   };
 })();

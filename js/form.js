@@ -4,6 +4,7 @@
 
   var ENTER_KEYCODE = 13;
   var advertFormElement = document.querySelector('.ad-form');
+  var addressFieldElement = advertFormElement.querySelector('#address');
   var titleFieldElement = advertFormElement.querySelector('#title');
   var typeFieldElement = advertFormElement.querySelector('#type');
   var priceFieldElement = advertFormElement.querySelector('#price');
@@ -32,13 +33,6 @@
   var removeInvalidStyle = function (elem) {
     if (elem.classList.contains('invalid')) {
       elem.classList.remove('invalid');
-    }
-  };
-
-  var blockFormFields = function (flag) {
-    var length = fieldsetElements.length;
-    for (var i = 0; i < length; i++) {
-      fieldsetElements[i].disabled = flag;
     }
   };
 
@@ -127,8 +121,9 @@
   // ----- сброс формы -----
   var resetForm = function () {
     advertFormElement.reset();
-    blockFormFields(true);
+    window.utils.setBlock(fieldsetElements, true);
     advertFormElement.classList.add('ad-form--disabled');
+
   };
 
   var setSuccessState = function () {
@@ -151,8 +146,4 @@
     var evt = new Event('change');
     roomsFieldElement.dispatchEvent(evt);
   });
-
-  window.form = {
-    setBlock: blockFormFields
-  };
 })();
