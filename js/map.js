@@ -15,7 +15,7 @@
   var pinsMapElement = mapElement.querySelector('.map__pins');
   var filtersContainerElement = document.querySelector('.map__filters');
   var fieldsetElements = advertFormElement.querySelectorAll('.ad-form__element');
-  var pinMapListener;
+  var pinMapListener = null;
 
   function fillFragment(dataArray) {
     var fragment = document.createDocumentFragment();

@@ -43,9 +43,9 @@
     switch (filterValue) {
       case 'middle':
       case 'low':
-        return (advertPrice > PriceRange[filterValue].MIN) && (advertPrice < PriceRange[filterValue].MAX);
+        return (advertPrice >= PriceRange[filterValue].MIN) && (advertPrice <= PriceRange[filterValue].MAX);
       case 'high':
-        return (advertPrice > PriceRange[filterValue].MIN);
+        return (advertPrice >= PriceRange[filterValue].MIN);
       case 'any':
         return true;
     }
