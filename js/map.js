@@ -15,7 +15,7 @@
   var pinsMapElement = mapElement.querySelector('.map__pins');
   var filtersContainerElement = document.querySelector('.map__filters');
   var fieldsetElements = advertFormElement.querySelectorAll('.ad-form__element');
-  var pinMapListener;
+  var pinMapListener = null;
 
   function fillFragment(dataArray) {
     var fragment = document.createDocumentFragment();
@@ -70,9 +70,11 @@
       var arr;
       cleanMap();
       arr = window.filters.setFilters(dataArray);
-      window.debounce(function () {
-        fillMap(arr);
-      });
+      if (arr.length > 0) {
+        window.debounce(function () {
+          fillMap(arr);
+        });
+      }
     };
   };
 
