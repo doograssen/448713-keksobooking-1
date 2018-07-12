@@ -2,15 +2,47 @@
 'use strict';
 
 (function () {
+
+  var STATUS_OK = 200;
+  var DELAY = 10000;
+  var ESC_KEY_CODE = 27;
   var sendURL = 'https://js.dump.academy/keksobooking';
   var dataURL = 'https://js.dump.academy/keksobooking/data';
+
+  var createMessageBlock = function (container, message) {
+    var messageBlock = document.createElement('div');
+    var messageText = document.createElement('p');
+    var closeBtn = document.createElement('button');
+    closeBtn.classList.add('popup__close');
+    messageBlock.appendChild(closeBtn);
+    messageBlock.appendChild(messageText);
+    messageBlock.classList.add('error__message');
+    messageText.textContent = message;
+    container.insertAdjacentElement('afterbegin', messageBlock);
+
+    var onMessageEscPress = function (evt) {
+      if (evt.keyCode === ESC_KEY_CODE) {
+        closeMessage(messageBlock);
+      }
+    };
+
+    var closeMessage = function () {
+      document.body.removeChild(messageBlock);
+      document.removeEventListener('keydown', onMessageEscPress);
+    };
+
+    closeBtn.addEventListener('click', function () {
+      closeMessage(messageBlock);
+    });
+    document.addEventListener('keydown', onMessageEscPress);
+  };
   /* --------------функция  с общими данными для создания запроса --------------*/
   var setupXHR = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === STATUS_OK) {
         onLoad(xhr.response);
       } else {
         onError('Ошибка ' + xhr.status + ' ' + xhr.statusText);
@@ -23,7 +55,7 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000; // 10s
+    xhr.timeout = DELAY; // 10s
     return xhr;
   };
 
@@ -40,12 +72,7 @@
       xhr.send(data);
     },
     serverError: function (errorMessage) { // функция обратного вызова возникновения ошибки  при выполнении запроса
-      var errorMessageBlock = document.createElement('div');
-      var errorText = document.createElement('p');
-      errorMessageBlock.appendChild(errorText);
-      errorMessageBlock.classList.add('error__message');
-      errorText.textContent = errorMessage;
-      document.body.insertAdjacentElement('afterbegin', errorMessageBlock);
+      createMessageBlock(document.body, errorMessage);
     }
   };
 })();
